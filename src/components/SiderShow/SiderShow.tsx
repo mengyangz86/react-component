@@ -15,10 +15,9 @@ interface SiderShowProps {
 
 export const SiderShow = ({ imageshow, imageStyle }: SiderShowProps) => {
   const [index, setIndex] = useState(0);
-  const [isClick, setClick] = useState(false);
-  const [isDot, setDot] = useState(false);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(true);
+  const [autoPlay, setAutoPlay] = useState(true);
   const exampleImage = imageshow.length
     ? imageshow
     : [
@@ -26,23 +25,17 @@ export const SiderShow = ({ imageshow, imageStyle }: SiderShowProps) => {
         "https://picsum.photos/300/200?random=2",
         "https://picsum.photos/300/200?random=3",
       ];
-  // 设置定时器，每隔1s切换
+  // 设置定时器，每隔2s切换
   useEffect(() => {
-    console.log("999index: ", index, isClick);
-    if (isClick) {
-      console.log(1);
-      setClick(false);
-    } else if (isDot) {
-      console.log(2);
-      setDot(false);
-    } else {
-      console.log(3);
-      setTimeout(() => {
-        console.log("98dp: ", index);
+    if (autoPlay) {
+      // 如果自动播放，那么就设置定时器
+      const timer = setTimeout(() => {
         setIndex((index + 1) % exampleImage.length);
       }, 2000);
+      return () => clearTimeout(timer); // 清除定时器
     }
-  }, [index]);
+  }, [index, autoPlay]);
+  // 左右切换
   useEffect(() => {
     if (index > 0) {
       setShowLeft(true);
@@ -75,12 +68,12 @@ export const SiderShow = ({ imageshow, imageStyle }: SiderShowProps) => {
         <SiderButton
           styleClass="sider-button sider-button-left"
           onClick={() => {
-            if (index > 0) {
-              setIndex(index - 1);
-            } else {
-              setIndex(0);
-            }
-            setClick(true);
+            setIndex((index - 1 + exampleImage.length) % exampleImage.length);
+            setAutoPlay(false);
+            // 恢复自动播放
+            setTimeout(() => {
+              setAutoPlay(true);
+            }, 500);
           }}
           svg={
             <svg
@@ -105,9 +98,12 @@ export const SiderShow = ({ imageshow, imageStyle }: SiderShowProps) => {
         <SiderButton
           styleClass="sider-button sider-button-right"
           onClick={() => {
-            console.log("aaa", index);
             setIndex((index + 1) % exampleImage.length);
-            setClick(true);
+            setAutoPlay(false);
+            // 恢复自动播放
+            setTimeout(() => {
+              setAutoPlay(true);
+            }, 500);
           }}
           svg={
             <svg
@@ -146,7 +142,11 @@ export const SiderShow = ({ imageshow, imageStyle }: SiderShowProps) => {
                 onClick={(e) => {
                   e.preventDefault();
                   setIndex(i);
-                  setDot(true);
+                  setAutoPlay(false);
+                  // 恢复自动播放
+                  setTimeout(() => {
+                    setAutoPlay(true);
+                  }, 500);
                 }}
               ></div>
             );
